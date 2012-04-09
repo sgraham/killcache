@@ -1,0 +1,56 @@
+killcache
+---------
+
+What's the equivalent to "echo 3 > /proc/sys/vm/drop_caches" on Windows?
+(flushing read cache)
+
+These do *not* work:
+
+http://technet.microsoft.com/en-us/sysinternals/bb897438
+http://chadaustin.me/flushmem/
+http://www.microsoft.com/download/en/details.aspx?id=17657 (consume.exe, also
+in Windows SDK).
+
+sync only flushes write cache.
+
+consume sorta-works, but it destroys your machine so badly that it'd be faster
+to just reboot to get a cold cache. consume and flushmem are both trying to
+consume more resources than are available and hope that as a side-effect the
+disk cache gets more-or-less-flushed.
+
+Presumably since consuming all system resources is an <ahem> _strategy_ that a
+lot of Windows client software employs, the OS is pretty decent at thwarting
+that sort behaviour and keeping the cache relatively hot.
+
+Another Internet-recommend solution is to use SetSystemFileCacheSize (after
+acquiring SE_INCREASE_QUOTA_NAME privilege). This doesn't appear to have any
+appreciable effect. It's not clear from the documentation, it may again only
+be flushing the write cache.
+
+
+So what *does* work?
+--------------------
+
+1. Working on a separate hard drive, and in the Administration interface,
+   changing the drive letter to something else, and then changing it back
+   (i.e. unmount, remount). This doesn't work for the system drive, but it's
+   pretty decent to get your project out of cache if you have a second drive.
+   Unfortunately, not very easy to use from the command line and doesn't
+   completely simulate cold cache because OS services will still be hot.
+
+2. Somewhat surprisingly, opening a file handle to the root of the drive
+   _without_ FILE_SHARE_WRITE (i.e. only FILE_SHARE_READ) per
+   http://stackoverflow.com/a/8113490.
+
+killcache implements #2, and seems to work very effectively (or at least Works-
+On-My-Machine) for Win7 x64.
+
+Build and run
+-------------
+
+In a vsvars32 prompt (i.e. with cl and link in the path):
+
+  ...\killcache>m.bat
+  ...\killcache>killcache c
+
+And then re-run your app.
