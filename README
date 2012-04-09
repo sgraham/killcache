@@ -7,11 +7,13 @@ What's the equivalent to "echo 3 > /proc/sys/vm/drop_caches" on Windows?
 These do *not* work:
 
 http://technet.microsoft.com/en-us/sysinternals/bb897438
+http://technet.microsoft.com/en-us/sysinternals/bb897561
 http://chadaustin.me/flushmem/
 http://www.microsoft.com/download/en/details.aspx?id=17657 (consume.exe, also
 in Windows SDK).
 
-sync only flushes write cache.
+sync only flushes write cache. cacheset doesn't seem to do too much of
+anything.
 
 consume sorta-works, but it destroys your machine so badly that it'd be faster
 to just reboot to get a cold cache. consume and flushmem are both trying to
